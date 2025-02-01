@@ -1,16 +1,14 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   Search,
   Home,
   Users,
-  BriefcaseIcon,
   MessageCircle,
   Bell,
   User,
-  Grid,
   Menu,
   X,
   Settings,
@@ -21,7 +19,7 @@ import {
 interface NavItemProps {
   icon: React.ReactNode;
   label: string;
-  path?: string; // Made optional
+  path?: string;
   active?: boolean;
   badge?: string;
   onClick?: () => void;
@@ -37,7 +35,7 @@ type IconType = LucideIcon;
 interface NavLink {
   icon: IconType;
   label: string;
-  path?: string; // Made optional
+  path?: string;
   badge?: string;
   active?: boolean;
 }
@@ -46,18 +44,28 @@ const NavBar: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [showMeDropdown, setShowMeDropdown] = useState<boolean>(false);
-  const user = parseInt(localStorage.getItem("user") || "0");
-  console.log(user);
-
-  let logIn = false;
+  const user = JSON.parse(localStorage.getItem("user") || "0");
 
   const navLinks: NavLink[] = [
     { icon: Home, label: "Home", path: "/" },
     { icon: Users, label: "My Network", path: "/#" },
     { icon: MessageCircle, label: "Messaging", path: "/#" },
     { icon: Bell, label: "Notifications", badge: "3", path: "/#" },
-    { icon: User, label: `${logIn ? "Profile" : "Log In"}` },
   ];
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (showMeDropdown && !target.closest(".profile-dropdown")) {
+        setShowMeDropdown(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showMeDropdown]);
 
   const toggleMenu = (): void => {
     setIsOpen(!isOpen);
@@ -68,7 +76,7 @@ const NavBar: React.FC = () => {
     setSearchQuery(e.target.value);
   };
 
-  const toggleMeDropdown = () => {
+  const toggleMeDropdown = (): void => {
     setShowMeDropdown(!showMeDropdown);
   };
 
@@ -106,29 +114,38 @@ const NavBar: React.FC = () => {
           </div>
 
           <div className="hidden md:flex items-center space-x-1 lg:space-x-2">
-            {navLinks.map((link, index) => (
-              <React.Fragment key={link.label}>
-                <NavItem
-                  icon={<link.icon className="w-6 h-6" />}
-                  label={link.label}
-                  path={link.path}
-                  active={link.active}
-                  badge={link.badge}
-                  onClick={
-                    link.label === "Log In" || link.label === "Log Out"
-                      ? toggleMeDropdown
-                      : undefined
-                  }
-                  showDropdown={
-                    (link.label === "Log In" || link.label === "Log Out") &&
-                    showMeDropdown
-                  }
-                />
-                {index === 5 && (
-                  <div className="border-l border-gray-300 h-8 mx-2" />
-                )}
-              </React.Fragment>
+            {navLinks.map((link) => (
+              <NavItem
+                key={link.label}
+                icon={<link.icon className="w-6 h-6" />}
+                label={link.label}
+                path={link.path}
+                active={link.active}
+                badge={link.badge}
+              />
             ))}
+            <div className="profile-dropdown relative">
+              <NavItem
+                icon={
+                  user && user.profilePicture !== null ? (
+                    <img
+                      src={user.profilePicture}
+                      className="w-6 h-6 rounded-full"
+                      alt="profile"
+                    />
+                  ) : (
+                    <User className="w-6 h-6" />
+                  )
+                }
+                label={
+                  user
+                    ? `${user?.name?.firstName} ${user?.name?.lastName}`
+                    : "Log In"
+                }
+                onClick={toggleMeDropdown}
+                showDropdown={showMeDropdown}
+              />
+            </div>
           </div>
 
           <button
@@ -145,26 +162,21 @@ const NavBar: React.FC = () => {
         {isOpen && (
           <div className="md:hidden fixed inset-0 top-14 bg-gray-900 z-40">
             <div className="px-4 py-2 space-y-1">
-              {navLinks.map((link, index) => (
-                <React.Fragment key={link.label}>
-                  <MobileNavItem
-                    icon={<link.icon className="w-6 h-6" />}
-                    label={link.label}
-                    path={link.path}
-                    active={link.active}
-                    badge={link.badge}
-                  />
-                  {index === 5 && (
-                    <div className="border-t border-gray-700 my-2" />
-                  )}
-                </React.Fragment>
+              {navLinks.map((link) => (
+                <MobileNavItem
+                  key={link.label}
+                  icon={<link.icon className="w-6 h-6" />}
+                  label={link.label}
+                  path={link.path}
+                  active={link.active}
+                  badge={link.badge}
+                />
               ))}
-              <Link
-                href="/premium"
-                className="flex items-center px-4 py-3 text-base font-semibold text-amber-400 hover:bg-gray-800"
-              >
-                Try Premium
-              </Link>
+              <MobileNavItem
+                icon={<User className="w-6 h-6" />}
+                label="Log In"
+                path="/login"
+              />
             </div>
           </div>
         )}
@@ -185,41 +197,67 @@ const NavBar: React.FC = () => {
 const NavItem: React.FC<NavItemProps> = ({
   icon,
   label,
-  path = "#", // Added default value
+  path = "#",
   active = false,
   badge,
   onClick,
   showDropdown,
 }) => {
+  const isLoginOrProfile = label === "Log In" || label.includes(" ");
+  const user = JSON.parse(localStorage.getItem("user") || "0");
+
+  const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+    if (onClick) {
+      onClick();
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("user");
+    window.location.reload();
+  };
+
   return (
     <div className="relative">
-      <Link
-        href={path}
-        className="flex flex-col items-center text-xs px-2 py-4 rounded text-white hover:text-blue-400"
-        aria-current={active ? "page" : undefined}
-        onClick={onClick}
-      >
-        <div className="relative">
-          {icon}
-          {badge && (
-            <span
-              className="absolute -top-1 -right-1 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-500 rounded-full"
-              aria-label={`${badge} notifications`}
-            >
-              {badge}
-            </span>
-          )}
+      {isLoginOrProfile ? (
+        <div
+          onClick={handleClick}
+          className="flex flex-col items-center text-xs px-2 py-4 rounded text-white hover:text-blue-400 cursor-pointer"
+        >
+          <div className="relative">{icon}</div>
+          <span className="mt-1 whitespace-nowrap">{label}</span>
         </div>
-        <span className="mt-1 whitespace-nowrap">{label}</span>
-      </Link>
+      ) : (
+        <Link
+          href={path}
+          className="flex flex-col items-center text-xs px-2 py-4 rounded text-white hover:text-blue-400"
+          aria-current={active ? "page" : undefined}
+        >
+          <div className="relative">
+            {icon}
+            {badge && (
+              <span
+                className="absolute -top-1 -right-1 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-500 rounded-full"
+                aria-label={`${badge} notifications`}
+              >
+                {badge}
+              </span>
+            )}
+          </div>
+          <span className="mt-1 whitespace-nowrap">{label}</span>
+        </Link>
+      )}
+
       {showDropdown && (
         <div className="absolute right-0 mt-1 w-48 bg-white rounded-md shadow-lg py-1 z-50">
           <Link
-            href="/login"
+            href={user ? "/profile" : "/login"}
             className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
           >
             <User className="inline-block w-4 h-4 mr-2" />
-            Login
+            Profile
           </Link>
           <Link
             href="/settings"
@@ -228,13 +266,24 @@ const NavItem: React.FC<NavItemProps> = ({
             <Settings className="inline-block w-4 h-4 mr-2" />
             Settings
           </Link>
-          <Link
-            href="/logout"
-            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-          >
-            <LogOut className="inline-block w-4 h-4 mr-2" />
-            Logout
-          </Link>
+
+          {user ? (
+            <button
+              onClick={handleLogout}
+              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+            >
+              <LogOut className="inline-block w-4 h-4 mr-2" />
+              Logout
+            </button>
+          ) : (
+            <Link
+              href="/login"
+              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+            >
+              <User className="inline-block w-4 h-4 mr-2" />
+              Login
+            </Link>
+          )}
         </div>
       )}
     </div>
@@ -244,18 +293,24 @@ const NavItem: React.FC<NavItemProps> = ({
 const MobileNavItem: React.FC<MobileNavItemProps> = ({
   icon,
   label,
-  path = "#", // Added default value
+  path = "#",
   active = false,
   badge,
   onClick,
 }) => {
+  const handleClick = () => {
+    if (onClick) {
+      onClick();
+    }
+  };
+
   return (
     <Link
       href={path}
       className={`flex items-center px-4 py-3 text-base hover:bg-gray-800 ${
         active ? "text-blue-400" : "text-white"
       }`}
-      onClick={onClick}
+      onClick={handleClick}
       aria-current={active ? "page" : undefined}
     >
       <div className="relative flex items-center">
