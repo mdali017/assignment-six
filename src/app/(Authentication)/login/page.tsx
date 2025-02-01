@@ -36,18 +36,18 @@ const LoginPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
- 
-      try {
-        const result = await userLogin(formData).unwrap();
-        localStorage.setItem("access_token", result.token);
-        localStorage.setItem("user", JSON.stringify(result.user));
-        // router.push("/dashboard");
-      } catch (error) {
-        setErrors({
-          email: "Invalid credentials",
-          password: "Invalid credentials",
-        });
-      
+
+    try {
+      const result = await userLogin(formData).unwrap();
+      // console.log(result);
+      localStorage.setItem("access_token", result?.data?.token);
+      localStorage.setItem("user", JSON.stringify(result?.data?.user));
+      router.push("/");
+    } catch (error) {
+      setErrors({
+        email: "Invalid credentials",
+        password: "Invalid credentials",
+      });
     }
   };
 
@@ -63,10 +63,13 @@ const LoginPage = () => {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4">
       <div className="w-full max-w-md p-8 space-y-4 rounded-xl bg-white shadow-lg">
         <h1 className="text-2xl font-bold text-center text-gray-900">Login</h1>
-        
+
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-700"
+            >
               Email
             </label>
             <div className="mt-1">
@@ -78,7 +81,7 @@ const LoginPage = () => {
                 value={formData.email}
                 onChange={handleChange}
                 className={`w-full px-4 py-3 rounded-md border ${
-                  errors.email ? 'border-red-300' : 'border-gray-300'
+                  errors.email ? "border-red-300" : "border-gray-300"
                 } bg-white text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
                 placeholder="Enter your email"
               />
@@ -89,7 +92,10 @@ const LoginPage = () => {
           </div>
 
           <div className="space-y-2">
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-gray-700"
+            >
               Password
             </label>
             <div className="relative">
@@ -101,7 +107,7 @@ const LoginPage = () => {
                 value={formData.password}
                 onChange={handleChange}
                 className={`w-full px-4 py-3 rounded-md border ${
-                  errors.password ? 'border-red-300' : 'border-gray-300'
+                  errors.password ? "border-red-300" : "border-gray-300"
                 } bg-white text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 pr-10`}
                 placeholder="Enter your password"
               />
@@ -121,7 +127,10 @@ const LoginPage = () => {
               )}
             </div>
             <div className="flex justify-end">
-              <Link href="/forgot-password" className="text-sm text-blue-600 hover:text-blue-500">
+              <Link
+                href="/forgot-password"
+                className="text-sm text-blue-600 hover:text-blue-500"
+              >
                 Forgot Password?
               </Link>
             </div>
@@ -141,7 +150,9 @@ const LoginPage = () => {
             <div className="w-full border-t border-gray-300"></div>
           </div>
           <div className="relative flex justify-center text-sm">
-            <span className="px-2 bg-white text-gray-500">Or continue with</span>
+            <span className="px-2 bg-white text-gray-500">
+              Or continue with
+            </span>
           </div>
         </div>
 
@@ -165,7 +176,10 @@ const LoginPage = () => {
 
         <p className="text-sm text-center text-gray-600">
           Don't have an account?{" "}
-          <Link href="/register" className="text-blue-600 hover:text-blue-500 hover:underline font-medium">
+          <Link
+            href="/register"
+            className="text-blue-600 hover:text-blue-500 hover:underline font-medium"
+          >
             Sign up
           </Link>
         </p>

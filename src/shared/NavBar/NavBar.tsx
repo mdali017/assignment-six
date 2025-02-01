@@ -46,15 +46,17 @@ const NavBar: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [showMeDropdown, setShowMeDropdown] = useState<boolean>(false);
+  const user = parseInt(localStorage.getItem("user") || "0");
+  console.log(user);
 
   let logIn = false;
 
   const navLinks: NavLink[] = [
     { icon: Home, label: "Home", path: "/" },
-    { icon: Users, label: "My Network", path: "/my-network" },
-    { icon: MessageCircle, label: "Messaging", path: "/messaging" },
-    { icon: Bell, label: "Notifications", badge: "3", path: "/notifications" },
-    { icon: User, label: `${logIn ? "Log Out" : "Log In"}` }, // No path needed
+    { icon: Users, label: "My Network", path: "/#" },
+    { icon: MessageCircle, label: "Messaging", path: "/#" },
+    { icon: Bell, label: "Notifications", badge: "3", path: "/#" },
+    { icon: User, label: `${logIn ? "Profile" : "Log In"}` },
   ];
 
   const toggleMenu = (): void => {
