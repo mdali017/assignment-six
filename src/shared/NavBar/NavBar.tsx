@@ -21,7 +21,7 @@ import {
 interface NavItemProps {
   icon: React.ReactNode;
   label: string;
-  path: string;
+  path?: string; // Made optional
   active?: boolean;
   badge?: string;
   onClick?: () => void;
@@ -37,7 +37,7 @@ type IconType = LucideIcon;
 interface NavLink {
   icon: IconType;
   label: string;
-  path: string;
+  path?: string; // Made optional
   badge?: string;
   active?: boolean;
 }
@@ -54,7 +54,7 @@ const NavBar: React.FC = () => {
     { icon: Users, label: "My Network", path: "/my-network" },
     { icon: MessageCircle, label: "Messaging", path: "/messaging" },
     { icon: Bell, label: "Notifications", badge: "3", path: "/notifications" },
-    { icon: User, label: `${logIn ? "Log Out" : "Log In"}`, path: "/login" },
+    { icon: User, label: `${logIn ? "Log Out" : "Log In"}` }, // No path needed
   ];
 
   const toggleMenu = (): void => {
@@ -72,7 +72,7 @@ const NavBar: React.FC = () => {
 
   return (
     <>
-      <nav className="px-6 py-5 fixed w-full top-0 z-50">
+      <nav className="px-6 py-5 fixed w-full top-0 z-50 bg-gray-900">
         <div className="flex items-center w-[95%] mx-auto justify-between h-14">
           <div className="flex items-center flex-1">
             <Link href="/" className="text-2xl font-bold text-blue-600">
@@ -82,7 +82,7 @@ const NavBar: React.FC = () => {
             <div className="hidden sm:block ml-4 flex-1 max-w-80">
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Search className="h-4 w-4 text-white" />
+                  <Search className="h-4 w-4 text-gray-500" />
                 </div>
                 <input
                   type="text"
@@ -112,10 +112,19 @@ const NavBar: React.FC = () => {
                   path={link.path}
                   active={link.active}
                   badge={link.badge}
-                  onClick={link.label === "Log In" || link.label === "Log Out" ? toggleMeDropdown : undefined}
-                  showDropdown={(link.label === "Log In" || link.label === "Log Out") && showMeDropdown}
+                  onClick={
+                    link.label === "Log In" || link.label === "Log Out"
+                      ? toggleMeDropdown
+                      : undefined
+                  }
+                  showDropdown={
+                    (link.label === "Log In" || link.label === "Log Out") &&
+                    showMeDropdown
+                  }
                 />
-                {index === 5 && <div className="border-l border-gray-300 h-8 mx-2" />}
+                {index === 5 && (
+                  <div className="border-l border-gray-300 h-8 mx-2" />
+                )}
               </React.Fragment>
             ))}
           </div>
@@ -123,7 +132,7 @@ const NavBar: React.FC = () => {
           <button
             type="button"
             onClick={toggleMenu}
-            className="md:hidden p-2 rounded-md text-white hover:text-white hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
+            className="md:hidden p-2 rounded-md text-white hover:text-white hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
             aria-expanded={isOpen}
             aria-label="Toggle menu"
           >
@@ -132,7 +141,7 @@ const NavBar: React.FC = () => {
         </div>
 
         {isOpen && (
-          <div className="md:hidden fixed inset-0 top-14 bg-white z-40">
+          <div className="md:hidden fixed inset-0 top-14 bg-gray-900 z-40">
             <div className="px-4 py-2 space-y-1">
               {navLinks.map((link, index) => (
                 <React.Fragment key={link.label}>
@@ -143,12 +152,14 @@ const NavBar: React.FC = () => {
                     active={link.active}
                     badge={link.badge}
                   />
-                  {index === 5 && <div className="border-t border-gray-200 my-2" />}
+                  {index === 5 && (
+                    <div className="border-t border-gray-700 my-2" />
+                  )}
                 </React.Fragment>
               ))}
               <Link
                 href="/premium"
-                className="flex items-center px-4 py-3 text-base font-semibold text-amber-700 hover:bg-gray-50"
+                className="flex items-center px-4 py-3 text-base font-semibold text-amber-400 hover:bg-gray-800"
               >
                 Try Premium
               </Link>
@@ -172,7 +183,7 @@ const NavBar: React.FC = () => {
 const NavItem: React.FC<NavItemProps> = ({
   icon,
   label,
-  path,
+  path = "#", // Added default value
   active = false,
   badge,
   onClick,
@@ -182,7 +193,7 @@ const NavItem: React.FC<NavItemProps> = ({
     <div className="relative">
       <Link
         href={path}
-        className="flex flex-col items-center text-xs px-2 py-4 rounded text-white"
+        className="flex flex-col items-center text-xs px-2 py-4 rounded text-white hover:text-blue-400"
         aria-current={active ? "page" : undefined}
         onClick={onClick}
       >
@@ -231,7 +242,7 @@ const NavItem: React.FC<NavItemProps> = ({
 const MobileNavItem: React.FC<MobileNavItemProps> = ({
   icon,
   label,
-  path,
+  path = "#", // Added default value
   active = false,
   badge,
   onClick,
@@ -239,8 +250,8 @@ const MobileNavItem: React.FC<MobileNavItemProps> = ({
   return (
     <Link
       href={path}
-      className={`flex items-center px-4 py-3 text-base hover:bg-gray-50 ${
-        active ? "text-black" : "text-white"
+      className={`flex items-center px-4 py-3 text-base hover:bg-gray-800 ${
+        active ? "text-blue-400" : "text-white"
       }`}
       onClick={onClick}
       aria-current={active ? "page" : undefined}
