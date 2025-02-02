@@ -17,37 +17,16 @@ const LoginPage = () => {
   const [userLogin, { isLoading }] = useUserLoginMutation();
   const router = useRouter();
 
-  const validateForm = (): boolean => {
-    const newErrors: Partial<typeof formData> = {};
-
-    if (!formData.email) {
-      newErrors.email = "Email is required";
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = "Email is invalid";
-    }
-
-    if (!formData.password) {
-      newErrors.password = "Password is required";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
       const result = await userLogin(formData).unwrap();
-      // console.log(result);
       localStorage.setItem("access_token", result?.data?.token);
       localStorage.setItem("user", JSON.stringify(result?.data?.user));
       router.push("/");
     } catch (error) {
-      setErrors({
-        email: "Invalid credentials",
-        password: "Invalid credentials",
-      });
+      console.error("Login failed:", error);
     }
   };
 
@@ -175,7 +154,7 @@ const LoginPage = () => {
         </div>
 
         <p className="text-sm text-center text-gray-600">
-          Don't have an account?{" "}
+          Don&apos;t have an account?{" "}
           <Link
             href="/register"
             className="text-blue-600 hover:text-blue-500 hover:underline font-medium"

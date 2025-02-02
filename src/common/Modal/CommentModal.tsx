@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button, Drawer } from "antd";
+import { Drawer } from "antd";
 
 interface CommentModalProps {
   open: boolean;

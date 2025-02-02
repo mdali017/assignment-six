@@ -4,17 +4,18 @@ import { Modal } from "antd";
 import { Image as ImageIcon } from "lucide-react";
 import { useCreatePostMutation } from "@/srcredux/api/baseApi";
 import Swal from "sweetalert2";
+import Image from "next/image";
 // import   from ''
 
-const PostModalProps = {
-  openResponsive: false,
-  setOpenResponsive: (p0: boolean) => {},
-};
+interface PostModalProps {
+  openResponsive: boolean;
+  setOpenResponsive: (value: boolean) => void;
+}
 
-const PostModal = ({
+const PostModal: React.FC<PostModalProps> = ({
   openResponsive,
   setOpenResponsive,
-}: typeof PostModalProps) => {
+}) => {
   const [postText, setPostText] = useState("");
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("Adventure");
@@ -126,11 +127,13 @@ const PostModal = ({
       <div className="py-4">
         {/* User Info */}
         <div className="flex items-center  w-full gap-5 mb-4">
-          <img
+          <Image
+            width={70}
+            height={70}
             src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=200&q=80"
             alt="User avatar"
             className="rounded-full "
-            style={{ width: "70px", height: "70px", marginRight: "10px" }}
+            style={{ marginRight: "10px" }}
           />
           <div className="">
             <h3 className="font-semibold ">Md.Mohabbat Ali</h3>
@@ -183,10 +186,12 @@ const PostModal = ({
             <div className="grid grid-cols-2 gap-2">
               {previews.map((preview, index) => (
                 <div key={index} className="relative">
-                  <img
+                  <Image
+                    width={100}
+                    height={100}
                     src={preview}
                     alt={`Preview ${index + 1}`}
-                    className="w-full h-48 object-cover rounded-lg"
+                    className=" object-cover rounded-lg"
                   />
                   <button
                     onClick={() => removeFile(index)}

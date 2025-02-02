@@ -1,6 +1,7 @@
 // RightSidebar.tsx
 import React from "react";
 import { ChevronRight } from "lucide-react";
+import Image from "next/image";
 
 interface PuzzleGame {
   name: string;
@@ -42,19 +43,21 @@ const RightSection: React.FC<RightSidebarProps> = () => {
       {/* Puzzle Games Section */}
       <div className="bg-white rounded-lg shadow">
         <div className="p-4">
-          <h2 className="font-semibold mb-4">Today's puzzle games</h2>
+          <h2 className="font-semibold mb-4">Today&apos;s puzzle games</h2>
           <div className="space-y-3">
             {puzzleGames.map((game, index) => (
               <a
-                key={game.name}
+                key={index}
                 href="#"
                 className="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg group"
               >
                 <div className="flex items-center space-x-3">
-                  <img
+                  <Image
+                    width={32}
+                    height={32}
                     src={game.icon}
                     alt={game.name}
-                    className="w-8 h-8 rounded"
+                    className=" rounded"
                   />
                   <div>
                     <h3 className="font-medium text-sm">{game.name}</h3>
@@ -81,11 +84,13 @@ const RightSection: React.FC<RightSidebarProps> = () => {
           </div>
           <div className="space-y-4">
             {suggestions?.map((suggestion, index) => (
-              <div key={suggestion.name} className="flex items-start space-x-3">
-                <img
+              <div key={index} className="flex items-start space-x-3">
+                <Image
+                  width={48}
+                  height={48}
                   src={suggestion.image}
                   alt={suggestion.name}
-                  className="w-12 h-12 rounded-full"
+                  className="rounded-full"
                 />
                 <div className="flex-1">
                   <h3 className="font-medium text-sm">{suggestion.name}</h3>

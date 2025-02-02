@@ -1,43 +1,39 @@
 "use client";
 import React, { useState } from "react";
-import {
-  Image,
-  Calendar,
-  MessageCircle,
-  ThumbsUp,
-  Share2,
-  ListChecks,
-} from "lucide-react";
+import { Calendar, Clapperboard, ListChecks } from "lucide-react";
 import PostModal from "@/srccommon/Modal/PostModal";
 import { useGetAllPostsQuery } from "@/srcredux/api/baseApi";
 import PostCard from "@/srccommon/Card/PostCard";
+import { Spin } from "antd";
+import Image from "next/image";
 
-interface PostData {
-  id: string;
+export interface IPost {
+  _id: string;
   title?: string;
-  author: {
-    name: string;
-    title: string;
-    image?: string;
-  };
   content: string;
-  timestamp: string;
-  groupName?: string;
-}
-
-interface MainContentProps {
-  userImage: string;
+  image?: string;
+  author?: {
+    name: string;
+    avatar?: string;
+  };
+  createdAt: string;
+  likes?: number;
+  comments?: number;
+  // Add other properties as needed
 }
 
 const ContentSection: React.FC = () => {
-  const [postText, setPostText] = useState("");
   const [openResponsive, setOpenResponsive] = useState(false);
 
   const { data: getAllPosts, isLoading } = useGetAllPostsQuery(undefined);
   const allPosts = getAllPosts?.data;
 
-  let userImage =
+  const userImage =
     "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=200&q=80";
+
+  if (isLoading) {
+    return <Spin size="large" />;
+  }
 
   return (
     <>
@@ -45,7 +41,9 @@ const ContentSection: React.FC = () => {
         {/* Create Post */}
         <div className="bg-white rounded-lg shadow p-4">
           <div className="flex space-x-4">
-            <img
+            <Image
+              width={64}
+              height={50}
               src={userImage}
               alt="User"
               className="w-12 h-12 rounded-full"
@@ -62,7 +60,7 @@ const ContentSection: React.FC = () => {
               onClick={() => setOpenResponsive(true)}
               className="flex items-center text-gray-600 hover:bg-gray-100 px-3 py-1 rounded"
             >
-              <Image className="w-5 h-5 mr-2" />
+              <Clapperboard className="w-5 h-5 mr-2" />
               Media
             </button>
             <button
@@ -94,7 +92,7 @@ const ContentSection: React.FC = () => {
         </div>
 
         {/* Posts */}
-        {allPosts?.map((post: any, index: number) => (
+        {allPosts?.map((post: IPost, index: number) => (
           <PostCard key={index} post={post} />
         ))}
       </div>

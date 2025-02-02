@@ -15,6 +15,7 @@ import {
   LogOut,
   LucideIcon,
 } from "lucide-react";
+import Image from "next/image";
 
 interface NavItemProps {
   icon: React.ReactNode;
@@ -40,11 +41,22 @@ interface NavLink {
   active?: boolean;
 }
 
+interface UserData {
+  name?: {
+    firstName: string;
+    lastName: string;
+  };
+  profilePicture?: string | null;
+}
+
+const defaultAvatar = "/profile-placeholder.jpg";
+
 const NavBar: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [showMeDropdown, setShowMeDropdown] = useState<boolean>(false);
-  const user = JSON.parse(localStorage.getItem("user") || "0");
+  const [user, setUser] = useState<UserData | null>(null);
+  const [mounted, setMounted] = useState(false);
 
   const navLinks: NavLink[] = [
     { icon: Home, label: "Home", path: "/" },
@@ -52,6 +64,18 @@ const NavBar: React.FC = () => {
     { icon: MessageCircle, label: "Messaging", path: "/#" },
     { icon: Bell, label: "Notifications", badge: "3", path: "/#" },
   ];
+
+  useEffect(() => {
+    setMounted(true);
+    try {
+      const storedUser = localStorage.getItem("user");
+      if (storedUser) {
+        setUser(JSON.parse(storedUser));
+      }
+    } catch (error) {
+      console.error('Error loading user data:', error);
+    }
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -79,6 +103,10 @@ const NavBar: React.FC = () => {
   const toggleMeDropdown = (): void => {
     setShowMeDropdown(!showMeDropdown);
   };
+
+  if (!mounted) {
+    return null;
+  }
 
   return (
     <>
@@ -127,19 +155,25 @@ const NavBar: React.FC = () => {
             <div className="profile-dropdown relative">
               <NavItem
                 icon={
-                  user && user.profilePicture !== null ? (
-                    <img
+                  user?.profilePicture ? (
+                    <Image
+                      width={24}
+                      height={24}
                       src={user.profilePicture}
-                      className="w-6 h-6 rounded-full"
+                      className="rounded-full"
                       alt="profile"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = defaultAvatar;
+                      }}
                     />
                   ) : (
                     <User className="w-6 h-6" />
                   )
                 }
                 label={
-                  user
-                    ? `${user?.name?.firstName} ${user?.name?.lastName}`
+                  user?.name
+                    ? `${user.name.firstName} ${user.name.lastName}`
                     : "Log In"
                 }
                 onClick={toggleMeDropdown}
@@ -174,8 +208,8 @@ const NavBar: React.FC = () => {
               ))}
               <MobileNavItem
                 icon={<User className="w-6 h-6" />}
-                label="Log In"
-                path="/login"
+                label={user ? `${user.name?.firstName} ${user.name?.lastName}` : "Log In"}
+                path={user ? "/profile" : "/login"}
               />
             </div>
           </div>
@@ -203,8 +237,20 @@ const NavItem: React.FC<NavItemProps> = ({
   onClick,
   showDropdown,
 }) => {
-  const isLoginOrProfile = label === "Log In" || label.includes(" ");
-  const user = JSON.parse(localStorage.getItem("user") || "0");
+  const [mounted, setMounted] = useState(false);
+  const [user, setUser] = useState<UserData | null>(null);
+
+  useEffect(() => {
+    setMounted(true);
+    try {
+      const storedUser = localStorage.getItem("user");
+      if (storedUser) {
+        setUser(JSON.parse(storedUser));
+      }
+    } catch (error) {
+      console.error('Error loading user data:', error);
+    }
+  }, []);
 
   const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
     e.stopPropagation();
@@ -214,10 +260,20 @@ const NavItem: React.FC<NavItemProps> = ({
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("user");
-    window.location.reload();
+    try {
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("user");
+      window.location.reload();
+    } catch (error) {
+      console.error('Error during logout:', error);
+    }
   };
+
+  if (!mounted) {
+    return null;
+  }
+
+  const isLoginOrProfile = label === "Log In" || label.includes(" ");
 
   return (
     <div className="relative">
@@ -270,7 +326,7 @@ const NavItem: React.FC<NavItemProps> = ({
           {user ? (
             <button
               onClick={handleLogout}
-              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+              className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
             >
               <LogOut className="inline-block w-4 h-4 mr-2" />
               Logout

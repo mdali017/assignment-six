@@ -1,44 +1,45 @@
-'use client';
-import React, { useState } from 'react';
-import { Camera, Upload, X } from 'lucide-react';
-import { useUserRegisterMutation } from '@/srcredux/api/baseApi';
+"use client";
+import React, { useState } from "react";
+import { Camera, Upload, X } from "lucide-react";
+import { useUserRegisterMutation } from "@/srcredux/api/baseApi";
+import Image from "next/image";
 
 const RegisterPage = () => {
   const [userRegister, { isLoading }] = useUserRegisterMutation();
   const [formData, setFormData] = useState({
     name: {
-      firstName: '',
-      lastName: ''
+      firstName: "",
+      lastName: "",
     },
-    email: '',
-    password: '',
-    phone: '',
-    role: 'user',
-    address: ''
+    email: "",
+    password: "",
+    phone: "",
+    role: "user",
+    address: "",
   });
-  const [file, setFile] = useState(null);
-  const [previewUrl, setPreviewUrl] = useState('');
+  const [file, setFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState("");
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    if (name === 'firstName' || name === 'lastName') {
-      setFormData(prev => ({
+    if (name === "firstName" || name === "lastName") {
+      setFormData((prev) => ({
         ...prev,
         name: {
           ...prev.name,
-          [name]: value
-        }
+          [name]: value,
+        },
       }));
     } else {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        [name]: value
+        [name]: value,
       }));
     }
   };
 
-  const handleFileChange = (e: any) => {
-    const selectedFile = e.target.files[0];
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = e.target.files?.[0];
     if (selectedFile) {
       setFile(selectedFile);
       const fileUrl = URL.createObjectURL(selectedFile);
@@ -48,27 +49,27 @@ const RegisterPage = () => {
 
   const removeFile = () => {
     setFile(null);
-    setPreviewUrl('');
+    setPreviewUrl("");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const formDataToSend = new FormData();
-      
+
       // Add userData as a JSON string
-      formDataToSend.append('userData', JSON.stringify(formData));
-      
+      formDataToSend.append("userData", JSON.stringify(formData));
+
       // Add file if exists
       if (file) {
-        formDataToSend.append('file', file);
+        formDataToSend.append("file", file);
       }
 
       const response = await userRegister(formDataToSend).unwrap();
-      console.log('Registration successful:', response);
+      console.log("Registration successful:", response);
       // Add success handling (e.g., redirect or show success message)
     } catch (error) {
-      console.error('Registration failed:', error);
+      console.error("Registration failed:", error);
       // Add error handling (e.g., show error message)
     }
   };
@@ -79,7 +80,9 @@ const RegisterPage = () => {
         <div className="p-8">
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-gray-900">Create Account</h1>
-            <p className="mt-2 text-gray-600">Join us! Please enter your details</p>
+            <p className="mt-2 text-gray-600">
+              Join us! Please enter your details
+            </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -95,10 +98,12 @@ const RegisterPage = () => {
                 />
                 {previewUrl ? (
                   <div className="relative w-32 h-32">
-                    <img
+                    <Image
+                      width={128}
+                      height={128}
                       src={previewUrl}
                       alt="Preview"
-                      className="w-32 h-32 rounded-full object-cover"
+                      className=" rounded-full object-cover"
                     />
                     <button
                       type="button"
@@ -221,7 +226,7 @@ const RegisterPage = () => {
                   Creating account...
                 </span>
               ) : (
-                'Create Account'
+                "Create Account"
               )}
             </button>
           </form>

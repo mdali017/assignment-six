@@ -1,24 +1,31 @@
-import {
-  useCreateVoteMutation,
-  useGetVoteCountQuery,
-} from "@/srcredux/api/baseApi";
+import { useCreateVoteMutation } from "@/srcredux/api/baseApi";
 import { Spin } from "antd";
 import { MessageCircle, Share2, ThumbsDown, ThumbsUp } from "lucide-react";
-import { useState } from "react";
+import React, { useState } from "react";
 import CommentModal from "../Modal/CommentModal";
+import Image from "next/image";
 
-const PostCard = ({ post }: { post: any }) => {
-  const [openResponsive, setOpenResponsive] = useState(false);
+interface Post {
+  _id: string;
+  title?: string;
+  content: string;
+  images?: string[];
+  upvoteCount?: number;
+  downvoteCount?: number;
+  // Add other properties that your post might have
+}
+
+interface PostCardProps {
+  post: Post;
+}
+
+const PostCard: React.FC<PostCardProps> = ({ post }) => {
   const [open, setOpen] = useState(false);
-  const {
-    data: vote,
-    isLoading: voteCountLoading,
-    refetch: refetchVoteCount,
-  } = useGetVoteCountQuery(post._id);
+
   const [createVote, { isLoading }] = useCreateVoteMutation();
   const handleVote = async (voteType: "upvote" | "downvote") => {
     try {
-      const userId = "679a521f209a736e170097b6"; // Replace with actual user ID from auth
+      const userId = "679a521f209a736e170097b6";
 
       const voteData = {
         userId,
@@ -38,9 +45,11 @@ const PostCard = ({ post }: { post: any }) => {
         <div className="p-4">
           <div className="flex items-start justify-between">
             <div className="flex space-x-3">
-              <img
+              <Image
+                width={48}
+                height={48}
                 src="https://avatars.githubusercontent.com/u/121658110?v=4"
-                className="w-12 h-12 rounded-full"
+                className=" rounded-full"
                 alt="User Avatar"
               />
               <div>
@@ -63,7 +72,13 @@ const PostCard = ({ post }: { post: any }) => {
             </div>
             {post.images?.[0] && (
               <div>
-                <img src={post.images[0]} alt="" className="w-full rounded" />
+                <Image
+                  width={500}
+                  height={500}
+                  src={post.images[0]}
+                  alt=""
+                  className=" rounded"
+                />
               </div>
             )}
           </div>
@@ -108,12 +123,7 @@ const PostCard = ({ post }: { post: any }) => {
           </button>
         </div>
       </div>
-      {open && (
-        <CommentModal
-          open={open}
-          setOpen={setOpen}
-        />
-      )}
+      {open && <CommentModal open={open} setOpen={setOpen} />}
     </>
   );
 };
