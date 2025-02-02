@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 import { BarChart2, Calendar, ListChecks, Users } from "lucide-react";
 
@@ -19,18 +20,21 @@ interface LeftSidebarProps {
 }
 
 const ProfileSidebar: React.FC = () => {
-    let profile = {
-      name: "John Doe",
-      title: "Software Engineer",
-      location: "New York, USA",
-      company: "Acme Inc.",
-      profileImage:
-        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=200&q=80",
-    }
+  let profile = {
+    name: "John Doe",
+    title: "Software Engineer",
+    location: "New York, USA",
+    company: "Acme Inc.",
+    profileImage:
+      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=200&q=80",
+  };
 
-    let stats = {
-      viewCount: 100,
-    }
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  console.log(user);
+
+  let stats = {
+    viewCount: 100,
+  };
 
   return (
     <div className="w-full max-w-[250px] space-y-4 py-12 border">
@@ -45,13 +49,17 @@ const ProfileSidebar: React.FC = () => {
           />
         </div>
         <div className="pt-12 p-4">
-          <h2 className="text-lg font-semibold">{profile.name}</h2>
+          <h2 className="text-lg font-semibold">
+            {user && user.name
+              ? `${user.name?.firstName} ${user.name?.lastName}`
+              : "John Doe"}
+          </h2>
           <p className="text-sm  mt-1">{profile.title}</p>
-          <p className="text-xs  mt-1">{profile.location}</p>
+          <p className="text-xs  mt-1">
+            {user && user.address ? user.address : "New York, USA"}
+          </p>
           <div className="mt-4">
-            <span className="text-xs  font-medium">
-              {profile.company}
-            </span>
+            <span className="text-xs  font-medium">{profile.company}</span>
           </div>
         </div>
 
@@ -59,9 +67,7 @@ const ProfileSidebar: React.FC = () => {
         <div className="border-t px-4 py-3">
           <div className="flex items-center justify-between">
             <span className="text-xs ">Profile viewers</span>
-            <span className="text-xs font-semibold ">
-              {stats.viewCount}
-            </span>
+            <span className="text-xs font-semibold ">{stats.viewCount}</span>
           </div>
         </div>
       </div>
